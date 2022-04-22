@@ -10,6 +10,7 @@ export default function Form(props) {
     editableStudent,
     setEditableStudent,
     setEditMode,
+    fetchData,
   } = props;
 
   const addStudent = (e) => {
@@ -18,27 +19,51 @@ export default function Form(props) {
       id: Date.now(),
       name: studentName,
     };
-    setStudentList([...studentList, student]);
-    setStudentName("");
+    //setStudentList([...studentList, student]);
+    fetch("http://localhost:3000/studentManagement", {
+      method: "POST",
+      body: JSON.stringify(student),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    }).then(() => {
+      fetchData();
+      setStudentName("");
+    });
   };
   const updateStudent = (e) => {
     e.preventDefault();
-    const result = studentList.map((student) => {
+    fetch(`http://localhost:3000/studentManagement/${editableStudent.id}`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        name: studentName,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    }).then(() => {
+      fetchData();
+      setEditMode(false);
+      setEditableStudent(null);
+      setStudentName("");
+    });
+
+    /* const result = studentList.map((student) => {
       if (student.id === editableStudent.id) {
         student.name = studentName;
       }
       return student;
-    });
+    }); 
     setStudentList(result);
-    setEditMode(false);
-    setEditableStudent(null);
-    setStudentName("");
+    
+    setStudentName(""); */
   };
 
   return (
     <>
-      <form action="">
+      <form action="" className="w-1/2 m-auto space-x-4 ">
         <input
+          className="text-xl text-black-400  border px-2 py-1 rounded-sm ring-2"
           type="text"
           placeholder="Enter the student name"
           value={studentName}
@@ -46,7 +71,10 @@ export default function Form(props) {
             setStudentName(e.target.value);
           }}
         />
-        <button onClick={(e) => (editMode ? updateStudent(e) : addStudent(e))}>
+        <button
+          className="ring-2 px-2 py-1 rounded-sm text-xl bg-sky-200"
+          onClick={(e) => (editMode ? updateStudent(e) : addStudent(e))}
+        >
           {editMode ? "Update Student" : "Add Student"}
         </button>
       </form>

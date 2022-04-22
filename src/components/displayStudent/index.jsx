@@ -10,6 +10,7 @@ export default function DisplayStudent(props) {
     setEditMode,
     setStudentName,
     setEditableStudent,
+    fetchData,
   } = props;
   const [presentStudentList, setPresentStudentList] = useState([]);
   const [absentStudentList, setAbsentStudentList] = useState([]);
@@ -18,8 +19,17 @@ export default function DisplayStudent(props) {
     const present = studentList.map((student) => {
       if (student.id === id) {
         if (student.isPresent === undefined) {
-          student.isPresent = true;
-          setPresentStudentList([...presentStudentList, student]);
+          fetch(`http://localhost:3000/studentManagement/${id}`, {
+            method: "PATCH",
+            body: JSON.stringify({
+              isPresent: true,
+            }),
+            headers: {
+              "Content-type": "application/json; charset=UTF-8",
+            },
+          }).then(() => {
+            fetchData();
+          });
         } else {
           alert("Already added");
         }
@@ -33,8 +43,20 @@ export default function DisplayStudent(props) {
     const absent = studentList.map((student) => {
       if (student.id === id) {
         if (student.isPresent === undefined) {
-          student.isPresent = false;
-          setAbsentStudentList([...absentStudentList, student]);
+          fetch(`http://localhost:3000/studentManagement/${id}`, {
+            method: "PATCH",
+            body: JSON.stringify({
+              isPresent: false,
+            }),
+            headers: {
+              "Content-type": "application/json; charset=UTF-8",
+            },
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              console.log(data);
+              fetchData();
+            });
         } else {
           alert("Already added");
         }
@@ -63,6 +85,7 @@ export default function DisplayStudent(props) {
         setEditableStudent={setEditableStudent}
         presentStudentHandler={presentStudentHandler}
         absentStudentHandler={absentStudentHandler}
+        fetchData={fetchData}
       />
       <PresentStudent
         studentList={studentList}
